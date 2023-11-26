@@ -1,0 +1,68 @@
+html {
+	box-sizing: border-box;
+}
+
+*,
+*::before,
+::after {
+	box-sizing: inherit;
+}
+
+body {
+	min-width: 320px;
+	min-height: 100vh;
+	font-family: 'Onest', sans-serif;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	text-rendering: optimizeLegibility;
+	-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+	-webkit-tap-highlight-color: transparent;
+	font-size: 18px;
+	line-height: 1.4;
+	color: #1a1a1a;
+	background-color: #fff;
+}
+
+img,
+svg {
+	display: block;
+	max-width: 100%;
+	height: auto;
+}
+
+svg {
+	max-height: 100%;
+}
+
+h1,
+h2,
+h3,
+p {
+	margin: 0;
+}
+
+fieldset {
+	margin: 0;
+	padding: 0;
+	border: none;
+}
+
+ul {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+a {
+	text-decoration: none;
+	color: inherit;
+}
+
+button {
+	cursor: pointer;
+	padding: 0;
+	outline: none;
+	border: none;
+	background-color: transparent;
+	color: inherit;
+}
