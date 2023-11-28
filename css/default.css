@@ -66,3 +66,7 @@ button {
 	background-color: transparent;
 	color: inherit;
 }
+
+.just-validate-error-label {
+	display: none;
+}

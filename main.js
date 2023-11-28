@@ -1,5 +1,9 @@
+import { Notification } from './js/notification';
 import './style.css';
 import TomSelect from 'tom-select';
+import Inputmask from 'inputmask';
+import JustValidate from 'just-validate';
+import inputmask from 'inputmask';
 
 // API
 const API_URL = 'http://localhost:3214';
@@ -7,6 +11,9 @@ const API_COMEDIANS = '/comedians';
 
 const MAX_COMEDIANS = 6;
 const bookingComediansList = document.getElementById('booking-comedians-list');
+const bookingForm = document.getElementById('booking-form');
+
+const notification = Notification.getInstance();
 
 const createComedianBlock = (comedians) => {
 	const bookingComedian = document.createElement('li'),
@@ -31,6 +38,7 @@ const createComedianBlock = (comedians) => {
 
 	bookingComedian.append(bookingSelectComedian, bookingSelectTime, inputHidden);
 
+	//! Селект с комиками, который рендарится из бека
 	const bookingTomSelectComedian = new TomSelect(bookingSelectComedian, {
 		hideSelected: true,
 		placeholder: 'Выбрать комика',
@@ -40,12 +48,14 @@ const createComedianBlock = (comedians) => {
 		})),
 	});
 
+	//! Селект с временем, который рендарится из бека
 	const bookingTomSelectTime = new TomSelect(bookingSelectTime, {
 		hideSelected: true,
 		placeholder: 'Время',
 	});
 	bookingTomSelectTime.disable();
 
+	//! Отображаем время каждого комика
 	bookingTomSelectComedian.on('change', (id) => {
 		bookingTomSelectComedian.blur();
 		bookingTomSelectTime.enable();
@@ -64,6 +74,7 @@ const createComedianBlock = (comedians) => {
 		bookingButton.remove();
 	});
 
+	//! Отображаем в каком зале выступает комик
 	bookingTomSelectTime.on('change', (time) => {
 		if (!time) {
 			return;
@@ -107,10 +118,90 @@ const init = async () => {
 	const comedians = await getComedians();
 	countComedians.textContent = comedians.length;
 
-	console.log('comedians: ', comedians);
-
 	const comedianBlock = createComedianBlock(comedians);
 	bookingComediansList.append(comedianBlock);
+
+	const validate = new JustValidate(bookingForm, {
+		errorFieldCssClass: 'booking__input_invalid',
+		successFieldCssClass: 'booking__input_valid',
+	});
+
+	const bookingInputFullnamne = document.querySelector(
+		'.booking__input_fullname'
+	);
+	const bookingInputPhone = document.querySelector('.booking__input_phone');
+	const bookingInputTicket = document.querySelector('.booking__input_ticket');
+
+	new inputmask('+375(99) 999-99-99').mask(bookingInputPhone);
+	new inputmask('99999999').mask(bookingInputTicket);
+
+	validate
+		.addField(bookingInputFullnamne, [
+			{ rule: 'required', errorMessage: 'Введите, Ваше, имя и фамилию' },
+		])
+		.addField(bookingInputPhone, [
+			{ rule: 'required', errorMessage: 'Введите, Ваш, номер телефона' },
+			{
+				validator() {
+					const phone = bookingInputPhone.inputmask.unmaskedvalue();
+					return phone.length === 9 && !!Number(phone);
+				},
+				errorMessage: 'Некорректный номер телефона',
+			},
+		])
+		.addField(bookingInputTicket, [
+			{ rule: 'required', errorMessage: 'Введите, Ваш, номер билета' },
+			{
+				validator() {
+					const ticket = bookingInputTicket.inputmask.unmaskedvalue();
+					return ticket.length === 8 && !!Number(ticket);
+				},
+				errorMessage: 'Неверный номер билета',
+			},
+		])
+		.onFail((fields) => {
+			let errorMessage = '';
+
+			for (const key in fields) {
+				if (!Object.hasOwnProperty.call(fields, key)) {
+					continue;
+				}
+
+				const element = fields[key];
+				if (!element.isValid) {
+					errorMessage += `${element.errorMessage}, `;
+				}
+
+				notification.show(errorMessage, false);
+			}
+		});
+
+	bookingForm.addEventListener('submit', (e) => {
+		e.preventDefault();
+
+		const data = { booking: [] };
+		const times = new Set();
+
+		new FormData(bookingForm).forEach((value, field) => {
+			if (field === 'booking') {
+				const [comedian, time] = value.split(',');
+
+				if (comedian && time) {
+					data.booking.push({ comedian, time });
+					times.add(time);
+				}
+			} else {
+				data[field] = value;
+			}
+
+			if (times.size !== data.booking.length) {
+				notification.show(
+					'Нельзя быть в одно время на двух выступлениях',
+					false
+				);
+			}
+		});
+	});
 };
 
 init();

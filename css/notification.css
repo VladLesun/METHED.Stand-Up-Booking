@@ -1,0 +1,30 @@
+.notification {
+	position: fixed;
+	z-index: 1000;
+	right: 50px;
+	bottom: 50px;
+	font-size: 30px;
+	font-weight: 800;
+	line-height: 1.2;
+	padding: 32px;
+	border-radius: 16px;
+	background-color: #ffc219;
+	color: #fff;
+	opacity: 0;
+	transform: translateX(100%);
+	transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+}
+
+.notification_show {
+	opacity: 1;
+	transform: translateX(0);
+}
+
+.notification_success {
+	padding-right: 72px;
+	background: #00992b no-repeat url('../img/check.svg') right 32px center/36px;
+}
+
+.notification_error {
+	background-color: #900;
+}
