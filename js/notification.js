@@ -21,6 +21,7 @@ export class Notification {
 	show(message, isSuccess) {
 		const notification = this.createNotification(message, isSuccess);
 
+    
 		document.body.append(notification);
 		this.animationNotification(notification, true);
 
